@@ -15,11 +15,91 @@
 # limitations under the License.
 #
 import webapp2
+import caesar
+import cgi
+from caesar import encrypt
 
-class MainHandler(webapp2.RequestHandler):
+
+# => prints Jgnnq, Bcej!
+
+# class Rot13(BaseHandler):
+#     def get(self):
+#         self.render('rot13-form.html')
+#
+#     def post(self):
+#         rot13 = ''
+#         text = self.request.get('text')
+#         if text:
+#             rot13 = text.encode('rot13')
+#
+#         self.render('rot13-form.html', text = rot13)
+
+header = """
+<!DOCTYPE html>
+<html>
+    <head>
+        <title>Caesar</title>
+        <style>
+        form{
+            background-color: #eee;
+            padding: 20px;
+            margin: 0 auto;
+            width: 540px;
+            font: 16px sans-serif;
+            border-radius: 10px;
+        }
+        textarea {
+            margin: 10px 0;
+            width: 540px;
+            height: 120px;
+        }
+        p.error {
+            color: red;
+        }
+        </style>
+    </head>
+    <body>
+"""
+
+footer = """
+    </body>
+</html>
+"""
+
+form = """
+<form method = "post">
+Enter the number of letters you want to rotate by:
+<input name="numrotate" type="text" value="0"/>
+<div>
+Input the text you want to encrypt:
+<br>
+<textarea name="text" method="post" placeholder="Enter text here">{}</textarea>
+</div>
+<input type="submit"/>
+</form>
+"""
+
+
+
+class Rot13(webapp2.RequestHandler):
     def get(self):
-        self.response.write('Hello world!')
+
+        response = header + form.format("") + footer
+        self.response.write(response)
+
+    def post(self):
+
+        text = self.request.get("text")
+        text_escaped = cgi.escape(text, quote=True)
+
+        numrotate = self.request.get("numrotate")
+
+        result = encrypt(text, int(numrotate))
+
+
+        response = header + form.format(result) + footer
+        self.response.write(response)
 
 app = webapp2.WSGIApplication([
-    ('/', MainHandler)
+    ('/', Rot13)
 ], debug=True)
